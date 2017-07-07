@@ -1,6 +1,6 @@
 {
   "name": "@art-of-coding/eshu",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1-alpha.2",
   "description": "MQTT with extra flavor",
   "author": "Michiel van der Velde <michiel@michielvdvelde.nl>",
   "license": "MIT",
