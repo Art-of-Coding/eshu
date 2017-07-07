@@ -1,0 +1,33 @@
+{
+  "name": "@art-of-coding/eshu",
+  "version": "0.0.1-alpha.1",
+  "description": "MQTT with extra flavor",
+  "author": "Michiel van der Velde <michiel@michielvdvelde.nl>",
+  "license": "MIT",
+  "keywords": [
+    "mqtt",
+    "publish/subscribe",
+    "publish",
+    "subscribe"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": "=>7.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Art-of-Coding/eshu.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Art-of-Coding/eshu/issues"
+  },
+  "homepage": "https://github.com/Art-of-Coding/eshu#readme",
+  "dependencies": {
+    "@types/node": "^8.0.8",
+    "mqtt": "^2.9.1"
+  },
+  "devDependencies": {
+    "typescript": "^2.4.1"
+  }
+}
