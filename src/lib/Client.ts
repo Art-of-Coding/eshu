@@ -173,6 +173,10 @@ export class Client extends EventEmitter {
       this.emit('offline')
     }
 
+    const onError = (err: Error) => {
+      this.emit('error', err)
+    }
+
     const onMessage = (topic: string, message: string, packet: IPacket) => {
       this._handleMessage(packet)
     }
@@ -182,12 +186,14 @@ export class Client extends EventEmitter {
       this._client.removeListener('close', onClose)
       this._client.removeListener('offline', onOffline)
       this._client.removeListener('message', onMessage)
+      this._client.removeListener('error', onError)
     }
 
     this._client.on('connect', onConnect)
     this._client.on('close', onClose)
     this._client.on('offline', onOffline)
     this._client.on('message', onMessage)
+    this._client.on('error', onError)
   }
 
   private _handleMessage (packet: IPacket) {
