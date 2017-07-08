@@ -111,6 +111,7 @@ export class Router extends EventEmitter {
 
     const removeListeners = () => {
       this._client.removeListener('connect', onConnect)
+      this._client.removeListener('reconnect', onReconnect)
       this._client.removeListener('close', onClose)
       this._client.removeListener('offline', onOffline)
     }
@@ -118,6 +119,7 @@ export class Router extends EventEmitter {
     this._client.on('connect', onConnect)
     this._client.on('close', onClose)
     this._client.on('offline', onOffline)
+    this._client.on('reconnect', onReconnect)
   }
 }
 
