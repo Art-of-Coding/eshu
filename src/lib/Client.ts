@@ -19,6 +19,8 @@ export class Client extends EventEmitter {
   private _opts: IClientOptions = null
   private _client: mqtt.Client = null
   private _routers: Router[] = []
+  private _pendingPublishes: any[] = []
+  private _pendingSubscriptions: any[] = []
 
   public constructor (opts?: IClientOptions) {
     super()
@@ -53,6 +55,10 @@ export class Client extends EventEmitter {
       const onConnect = (connack: IConnackPacket) => {
         removeListeners()
         this._attachEventHandlers()
+        if (!connack.sessionPresent) {
+          this._subsribePending()
+          this._publishPending()
+        }
         this.emit('connect', connack)
         resolve(connack)
       }
@@ -88,8 +94,6 @@ export class Client extends EventEmitter {
         return reject(new TypeError('message must be a string, buffer or object'))
       } else if (opts && typeof opts !== 'object') {
         return reject(new TypeError('opts must be an object'))
-      } else if (this._client === null) {
-        return reject(new Error('client not available'))
       }
 
       opts = Object.assign({
@@ -104,10 +108,15 @@ export class Client extends EventEmitter {
         } catch (e) {}
       }
 
-      this._client.publish(topic, message, opts, (err: Error) => {
-        if (err) return reject(err)
+      if (this._client === null) {
+        this._pendingPublishes.push([ topic, message, opts ])
         resolve()
-      })
+      } else {
+        this._client.publish(topic, message, opts, (err: Error) => {
+          if (err) return reject(err)
+          resolve()
+        })
+      }
     })
   }
 
@@ -117,15 +126,18 @@ export class Client extends EventEmitter {
         return reject(new TypeError('topic must be a string or array'))
       } else if (opts && typeof opts !== 'object') {
         return reject(new TypeError('opts must be an object'))
-      } else if (this._client === null) {
-        return reject(new Error('client not available'))
       }
 
       opts = Object.assign({ qos: 0 }, opts || {})
-      this._client.subscribe(topic, opts, (err: Error, granted: ISubscriptionGrant[]) => {
-        if (err) return reject(err)
-        resolve(granted)
-      })
+      if (this._client === null) {
+        this._pendingSubscriptions.push([ topic, opts ])
+        resolve()
+      } else {
+        this._client.subscribe(topic, opts, (err: Error, granted: ISubscriptionGrant[]) => {
+          if (err) return reject(err)
+          resolve(granted)
+        })
+      }
     })
   }
 
@@ -202,6 +214,38 @@ export class Client extends EventEmitter {
     }
 
     this.emit('message', packet)
+  }
+
+  private _publishPending () {
+    if (this._publishPending.length === 0) return
+
+    let run = true
+    const publishes = []
+    while (run) {
+      const [ topic, message, opts ] = this._pendingPublishes.pop()
+      publishes.push(this.publish(topic, message, opts))
+      run = this._pendingPublishes.length > 0
+    }
+
+    return Promise.all(publishes).then(() => {
+      return true
+    })
+  }
+
+  private _subsribePending () {
+    if (this._pendingSubscriptions.length === 0) return
+
+    let run = true
+    const subscribtions = []
+    while (run) {
+      const [ topic, opts ] = this._pendingSubscriptions.pop()
+      subscribtions.push(this.subscribe(topic, opts))
+      run = this._pendingSubscriptions.length > 0
+    }
+
+    return Promise.all(subscribtions).then(() => {
+      return true
+    })
   }
 }
 
