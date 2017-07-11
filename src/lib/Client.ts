@@ -56,7 +56,7 @@ export class Client extends EventEmitter {
         removeListeners()
         this._attachEventHandlers()
         if (!connack.sessionPresent) {
-          this._subsribePending()
+          this._subscribePending()
           this._publishPending()
         }
         this.emit('connect', connack)
@@ -233,7 +233,7 @@ export class Client extends EventEmitter {
     })
   }
 
-  private _subsribePending () {
+  private _subscribePending () {
     if (this._pendingSubscriptions.length === 0) return
 
     let run = true
