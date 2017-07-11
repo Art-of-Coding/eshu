@@ -227,8 +227,9 @@ export class Client extends EventEmitter {
       run = this._pendingPublishes.length > 0
     }
 
-    return Promise.all(publishes).then(() => {
-      return true
+    Promise.all(publishes).catch((err: Error) => {
+      err.message = `Unable to publish pending: ${err.message}`
+      this.emit('error', err)
     })
   }
 
@@ -243,8 +244,9 @@ export class Client extends EventEmitter {
       run = this._pendingSubscriptions.length > 0
     }
 
-    return Promise.all(subscribtions).then(() => {
-      return true
+    Promise.all(subscribtions).catch((err: Error) => {
+      err.message = `Unable to subscribe pending: ${err.message}`
+      this.emit('error', err)
     })
   }
 }
