@@ -219,12 +219,10 @@ export class Client extends EventEmitter {
   private _publishPending () {
     if (this._publishPending.length === 0) return
 
-    let run = true
     const publishes = []
-    while (run) {
+    while (this._pendingPublishes.length > 0) {
       const [ topic, message, opts ] = this._pendingPublishes.pop()
       publishes.push(this.publish(topic, message, opts))
-      run = this._pendingPublishes.length > 0
     }
 
     Promise.all(publishes).catch((err: Error) => {
@@ -236,12 +234,10 @@ export class Client extends EventEmitter {
   private _subscribePending () {
     if (this._pendingSubscriptions.length === 0) return
 
-    let run = true
     const subscribtions = []
-    while (run) {
+    while (this._pendingSubscriptions.length > 0) {
       const [ topic, opts ] = this._pendingSubscriptions.pop()
       subscribtions.push(this.subscribe(topic, opts))
-      run = this._pendingSubscriptions.length > 0
     }
 
     Promise.all(subscribtions).catch((err: Error) => {
